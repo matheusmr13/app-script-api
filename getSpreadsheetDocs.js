@@ -28,7 +28,10 @@ const processObj = (obj, treeName) => {
 
 	if (funcs && Array.isArray(funcs)) {
 		funcs.forEach(func => {
+			const funcName = func['1']
+			const resultType = func['2']
 			const params = func['3']
+
 			let strParams = ''
 			if (params) {
 				params.forEach(param => {
@@ -36,12 +39,12 @@ const processObj = (obj, treeName) => {
 				})
 				strParams = strParams.substring(0, strParams.length - 2)
 			}
-			console.info('   +------> ' + func['1'] + '(' + strParams + '): ' + func['2'])
+			metaClass += funcName + '(' + strParams + '): ' + resultType + ' {\n//TODO Implement\n}\n';
 		})
 	}
 
 	metaClass += 'export default ' + name;
-	fs.writeFile(name, JSON.stringify(a.data), function(err) {
+	fs.writeFile(name, metaClass, function(err) {
 	})
 }
 
