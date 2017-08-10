@@ -1,5 +1,6 @@
 const fs = require('fs');
 const axios = require('axios');
+const MetaClass = require('./MetaClass');
 
 const API_JSON_DIR = 'api-json'
 const CLASSES_DIR = 'classes'
