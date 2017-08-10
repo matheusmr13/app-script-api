@@ -1,0 +1,26 @@
+{
+  "name": "app-script-api",
+  "version": "1.0.0",
+  "description": "Create ES6 classes that reproduces exactly Google App Script API (without implementation)",
+  "main": "getSpreadsheetDocs.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matheusmr13/app-script-api.git"
+  },
+  "keywords": [
+    "google-app-script",
+    "app-script"
+  ],
+  "author": "Matheus Martins do Rego",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/matheusmr13/app-script-api/issues"
+  },
+  "homepage": "https://github.com/matheusmr13/app-script-api#readme",
+  "devDependencies": {
+    "axios": "^0.16.2"
+  }
+}
