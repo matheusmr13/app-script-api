@@ -1,6 +1,16 @@
 const JUMP_LINE = '\n';
+const FORMAT_CHAR = '\t';
 
 class Function {
+	constructor() {
+		this.name = '';
+		this.type = '';
+		this.parameters = [];
+		this.privacy = '';
+	}
+}
+
+class Propertie {
 	constructor() {
 
 	}
@@ -28,7 +38,7 @@ class MetaClass {
 	buildProperties() {
 		let builder = '';
 		this.properties.forEach(propertie => {
-			builder += propertie.name + ',' + JUMP_LINE;
+			builder += FORMAT_CHAR + propertie.name + ',' + JUMP_LINE;
 		});
 		builder += ';';
 		builder += JUMP_LINE;
@@ -37,19 +47,17 @@ class MetaClass {
 
 	buildFunctions() {
 		let builder = '';
-		funcs.forEach(func => {
-			const funcName = func['1']
-			const resultType = func['2']
-			const params = func['3']
-
-			let strParams = ''
-			if (params) {
-				params.forEach(param => {
-					strParams += param['1'] + ': ' + param['2'] + ', '
-				})
-				strParams = strParams.substring(0, strParams.length - 2)
+		this.functions.forEach(func => {
+			let parametersBuilder = ''
+			if (func.parameters) {
+				func.parameters.forEach(parameter => {
+					parametersBuilder += `${parameter.name}: ${parameter.type}, `;
+				});
+				parametersBuilder = parametersBuilder.substring(0, parametersBuilder.length - 2)
 			}
-			metaClass += '\tstatic ' + funcName + '(' + strParams + '): ' + resultType + ' {\n\t\t//TODO Implement\n\t}\n';
+			metaClass += `${FORMAT_CHAR}static ${func.name} (${parametersBuilder}): ${func.type} {${JUMP_LINE}`;
+			metaClass += `${FORMAT_CHAR}${FORMAT_CHAR}//TODO Implement${JUMP_LINE}`;
+			metaClass += `${FORMAT_CHAR}}${JUMP_LINE}`;
 		})
 		return builder;
 	}
@@ -73,4 +81,4 @@ class MetaClass {
 	}
 }
 
-export default MetaClass
+export default MetaClass;
