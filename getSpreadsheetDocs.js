@@ -1,8 +1,8 @@
 const fs = require('fs');
 const axios = require('axios');
-const Meta = require('./MetaClass');
+const Meta = require('./meta/MetaClass');
 const MetaClass = Meta.MetaClass;
-const Function = Meta.Function;
+const MetaFunction = Meta.MetaFunction;
 
 const API_JSON_DIR = 'api-json'
 const CLASSES_DIR = 'classes'
@@ -46,7 +46,7 @@ const processObj = (obj, treeName) => {
 
 		if (funcs && Array.isArray(funcs)) {
 			metaClass.functions = funcs.map(func => {
-				return new Function({
+				return new MetaFunction({
 					name: func['1'],
 					type: func['2'],
 					parameters: (func['3'] || []).map(parameter => ({
