@@ -2,11 +2,34 @@ const JUMP_LINE = '\n';
 const FORMAT_CHAR = '\t';
 
 class Function {
-	constructor() {
-		this.name = '';
-		this.type = '';
-		this.parameters = [];
-		this.privacy = '';
+	constructor({
+		name = '',
+		type = '',
+		parameters = [],
+		privacy = ''
+	}) {
+		this.name = name;
+		const typeParts = type.split('.');
+		this.type = typeParts[typeParts.length - 1];
+
+		this.parameters = parameters;
+		this.dependencies = new Set([typeParts[0]].concat(this.parameters.map(parameter => parameter.split('.')[0])))
+		this.privacy = privacy;
+	}
+
+	buildParameters() {
+		return this.parameters
+			.map(parameter => `${parameter.name}: ${parameter.type}`)
+			.join(', ');
+	}
+
+	build() {
+		let builder = '';
+		const privacyIfExists = this.privacy ? `${this.privacy} ` : '';
+		builder += `${FORMAT_CHAR}${privacyIfExists}${this.name} (${this.buildParameters()}): ${this.type} {${JUMP_LINE}`;
+		builder += `${FORMAT_CHAR}${FORMAT_CHAR}//TODO Implement${JUMP_LINE}`;
+		builder += `${FORMAT_CHAR}}${JUMP_LINE}`;
+		return builder;
 	}
 }
 
@@ -16,22 +39,48 @@ class Propertie {
 	}
 }
 
+class MetaImport {
+	constructor(fullObjectPath) {
+		this.imports = {};
+	}
+
+	addImport(fullObjectPath) {
+		const fullObjectPathParts = fullObjectPath.split('.');
+		const fromObj = fullObjectPathParts[0];
+		const importObj = fullObjectPathParts[1];
+
+		const allImportsFromObject = this.imports[fromObj] || [];
+		allImportsFromObject.push(importObj);
+		this.imports[fromObj] = allImportsFromObject
+	}
+
+	build() {
+		return Object
+			.keys(this.imports)
+			.map((from => `import { ${this.imports[from].join(', ')} } from ${from}`))
+			.join(JUMP_LINE)
+	}
+}
+
 class MetaClass {
 	constructor() {
 		this.properties = [];
 		this.functions = [];
 		this.className = '';
+		this.imports = new MetaImports();
 	}
 
 	buildImports() {
 		let builder = '';
-		return builder;
+		// return this.functions
+		// 	.map(func => func.dependencies)
+		// 	.reduce((prev, cur) => new Set([...prev, ...cur]), new Set())
+		// 	.map(import;
 	}
 
 	buildClass() {
 		let builder = '';
-		builder += `class ${this.className} {'`;
-		builder += JUMP_LINE;
+		builder += `class ${this.className} {`;
 		return builder;
 	}
 
@@ -46,24 +95,15 @@ class MetaClass {
 	}
 
 	buildFunctions() {
-		let builder = '';
-		this.functions.forEach(func => {
-			let parametersBuilder = ''
-			if (func.parameters) {
-				func.parameters.forEach(parameter => {
-					parametersBuilder += `${parameter.name}: ${parameter.type}, `;
-				});
-				parametersBuilder = parametersBuilder.substring(0, parametersBuilder.length - 2)
-			}
-			metaClass += `${FORMAT_CHAR}static ${func.name} (${parametersBuilder}): ${func.type} {${JUMP_LINE}`;
-			metaClass += `${FORMAT_CHAR}${FORMAT_CHAR}//TODO Implement${JUMP_LINE}`;
-			metaClass += `${FORMAT_CHAR}}${JUMP_LINE}`;
-		})
-		return builder;
+		return this.functions
+			.map(func => func.build())
+			.reduce((prev, cur) => {
+				return `${prev}${JUMP_LINE}${cur}`;
+			}, '');
 	}
 
 	buildEndClass() {
-		let builder = '';
+		let builder = JUMP_LINE;
 		builder += '};'
 		builder += JUMP_LINE;
 		builder += `export default ${this.className};`;
@@ -72,13 +112,17 @@ class MetaClass {
 
 	build() {
 		let metaClass = '';
-		metaClass += buildImports();
-		metaClass += buildClass();
-		metaClass += buildProperties();
-		metaClass += buildFunctions();
-		metaClass += buildEndClass();
+		metaClass += this.buildImports();
+		metaClass += this.buildClass();
+		// metaClass += this.buildProperties();
+		metaClass += this.buildFunctions();
+		metaClass += this.buildEndClass();
 		return metaClass;
 	}
 }
 
-export default MetaClass;
+module.exports = {
+	MetaClass,
+	Function,
+	Propertie
+}

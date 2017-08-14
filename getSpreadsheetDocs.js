@@ -1,6 +1,8 @@
 const fs = require('fs');
 const axios = require('axios');
-const MetaClass = require('./MetaClass');
+const Meta = require('./MetaClass');
+const MetaClass = Meta.MetaClass;
+const Function = Meta.Function;
 
 const API_JSON_DIR = 'api-json'
 const CLASSES_DIR = 'classes'
@@ -29,42 +31,34 @@ const processObj = (obj, treeName) => {
 			return;
 		}
 
+		const metaClass = new MetaClass();
 		const fullName = obj['1'];
 		const name = fullName.indexOf('.') > -1 ? obj['1'].split('.')[1] : obj['1'];
-		const dirToSave = CLASSES_DIR + '/' + treeName;
+		const dirToSave = CLASSES_DIR + '/' + (treeName || name);
 		const filePath = dirToSave + '/' + (!treeName ? 'index.js' : name + '.js' )
-		let metaClass = 'class ' + name + ' {\n';
+		metaClass.className = name;
 
 		const props = obj['2']
 		const funcs = obj['3']
 		if (!treeName && props && Array.isArray(props)) {
-			props.forEach(item => {
-				const propName = item['1']
-				metaClass += '\n' + propName + ','
-			});
-			metaClass += ';\n';
+			metaClass.properties = props.map(item => ({ name: item['1'] }));
 		}
 
 		if (funcs && Array.isArray(funcs)) {
-			funcs.forEach(func => {
-				const funcName = func['1']
-				const resultType = func['2']
-				const params = func['3']
-
-				let strParams = ''
-				if (params) {
-					params.forEach(param => {
-						strParams += param['1'] + ': ' + param['2'] + ', '
-					})
-					strParams = strParams.substring(0, strParams.length - 2)
-				}
-				metaClass += '\tstatic ' + funcName + '(' + strParams + '): ' + resultType + ' {\n\t\t//TODO Implement\n\t}\n';
+			metaClass.functions = funcs.map(func => {
+				return new Function({
+					name: func['1'],
+					type: func['2'],
+					parameters: (func['3'] || []).map(parameter => ({
+						name: parameter['1'],
+						type: parameter['2']
+					})),
+					privacy: treeName ? '' : 'static'
+				})
 			})
 		}
 
-		metaClass += '};\n\nexport default ' + name + ';';
-
-		fs.writeFile(filePath, metaClass, function(err) {
+		fs.writeFile(filePath, metaClass.build(), function(err) {
 			console.log('+->Saved class ' + filePath);
 			resolve(name)
 		})
